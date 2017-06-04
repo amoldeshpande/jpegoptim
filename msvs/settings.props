@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+
+    <saneconfig Condition="'$(Configuration)' == 'Debug'">Debug</saneconfig>
+    <saneconfig Condition="'$(Configuration)' == 'DebugStaticLib'">Debug</saneconfig>
+    <saneconfig Condition="'$(Configuration)' == 'Release'">Release</saneconfig>
+    <saneconfig Condition="'$(Configuration)' == 'ReleaseStaticLib'">Release</saneconfig>
+    <jpegturbodir>I:\github\libjpeg-turbo\1.4.x</jpegturbodir>
+    <jpegturbolibdir>$(jpegturbodir)\Bin\$(saneconfig)\$(Platform)\turbojpeg-static</jpegturbolibdir>
+
+    <OutDir>$(SolutionDir)Output\$(saneconfig)\$(Platform)\</OutDir>
+    <Intdir>$(SolutionDir)Intermediate\$(saneconfig)\$(Platform)\$(ProjectName)\</Intdir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <PreprocessorDefinitions>_WIN32;NOMINMAX;HAVE_LABS;WIN32_LEAN_AND_MEAN;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>$(jpegturbodir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(jpegturbolibdir);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>turbojpeg-static.lib;%(AdditionalDependencies);</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup />
+</Project>

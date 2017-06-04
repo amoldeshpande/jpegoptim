@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 
-#ifdef WIN32
+#ifdef _WIN32
 #include "win32_compat.h"
 #define DIR_SEPARATOR_C '\\'
 #define DIR_SEPARATOR_S "\\"

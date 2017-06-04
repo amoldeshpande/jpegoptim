@@ -1,0 +1,72 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpegoptim", "jpegoptim\jpegoptim.vcxproj", "{08A5642B-BE4A-4C41-B262-741FEB3D38FA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "jpegoptimexecutable", "..\jpegoptimexecutable\jpegoptimexecutable.vcxproj", "{5BC56661-D415-4B8B-828D-88CF3A032B81}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibUnitTest", "LibUnitTest\LibUnitTest.vcxproj", "{1121D593-4B93-4E93-B2E5-2780F9102B15}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		DebugStaticLib|x64 = DebugStaticLib|x64
+		DebugStaticLib|x86 = DebugStaticLib|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+		ReleaseStaticLib|x64 = ReleaseStaticLib|x64
+		ReleaseStaticLib|x86 = ReleaseStaticLib|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Debug|x64.ActiveCfg = Debug|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Debug|x64.Build.0 = Debug|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Debug|x86.ActiveCfg = Debug|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Debug|x86.Build.0 = Debug|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.DebugStaticLib|x64.ActiveCfg = DebugStaticLib|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.DebugStaticLib|x64.Build.0 = DebugStaticLib|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.DebugStaticLib|x86.ActiveCfg = DebugStaticLib|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.DebugStaticLib|x86.Build.0 = DebugStaticLib|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Release|x64.ActiveCfg = Release|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Release|x64.Build.0 = Release|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Release|x86.ActiveCfg = Release|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.Release|x86.Build.0 = Release|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.ReleaseStaticLib|x64.ActiveCfg = ReleaseStaticLib|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.ReleaseStaticLib|x64.Build.0 = ReleaseStaticLib|x64
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.ReleaseStaticLib|x86.ActiveCfg = ReleaseStaticLib|Win32
+		{08A5642B-BE4A-4C41-B262-741FEB3D38FA}.ReleaseStaticLib|x86.Build.0 = ReleaseStaticLib|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Debug|x64.ActiveCfg = Debug|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Debug|x64.Build.0 = Debug|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Debug|x86.ActiveCfg = Debug|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Debug|x86.Build.0 = Debug|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.DebugStaticLib|x64.ActiveCfg = DebugStaticLib|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.DebugStaticLib|x86.ActiveCfg = DebugStaticLib|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.DebugStaticLib|x86.Build.0 = DebugStaticLib|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Release|x64.ActiveCfg = Release|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Release|x64.Build.0 = Release|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Release|x86.ActiveCfg = Release|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.Release|x86.Build.0 = Release|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.ReleaseStaticLib|x64.ActiveCfg = ReleaseStaticLib|x64
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.ReleaseStaticLib|x86.ActiveCfg = ReleaseStaticLib|Win32
+		{5BC56661-D415-4B8B-828D-88CF3A032B81}.ReleaseStaticLib|x86.Build.0 = ReleaseStaticLib|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Debug|x64.ActiveCfg = Debug|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Debug|x86.ActiveCfg = Debug|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Debug|x86.Build.0 = Debug|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.DebugStaticLib|x64.ActiveCfg = DebugStaticLib|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.DebugStaticLib|x64.Build.0 = DebugStaticLib|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.DebugStaticLib|x86.ActiveCfg = DebugStaticLib|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.DebugStaticLib|x86.Build.0 = DebugStaticLib|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Release|x64.ActiveCfg = Release|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Release|x86.ActiveCfg = Release|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.Release|x86.Build.0 = Release|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.ReleaseStaticLib|x64.ActiveCfg = ReleaseStaticLib|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.ReleaseStaticLib|x64.Build.0 = ReleaseStaticLib|x64
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.ReleaseStaticLib|x86.ActiveCfg = ReleaseStaticLib|Win32
+		{1121D593-4B93-4E93-B2E5-2780F9102B15}.ReleaseStaticLib|x86.Build.0 = ReleaseStaticLib|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

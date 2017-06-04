@@ -8,3 +8,7 @@ jpegoptim.ps
 jpegoptim.txt
 *.o
 *.jpg
+msvs/Intermediate/
+*.user
+jpegoptimexecutable/Debug/
+msvs/Output/
