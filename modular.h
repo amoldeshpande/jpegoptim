@@ -12,7 +12,6 @@ extern "C" {
   }
 
 #define STRNCPY(dest,src,n) { strncpy(dest,src,n); dest[n-1]=0; }
-#ifdef BUILD_STATIC_LIB
 
 struct jpegoptim_options
 {
@@ -63,7 +62,6 @@ char* read_all_bytes(char const* filename, size_t* length);
 void write_all_bytes(char const* filename, char* data, int datalen);
 
 int call_jpegoptim(struct jpegoptim_options* options, unsigned char* inputbuf, size_t inputlen, unsigned char** outputbuf, size_t* outputlen);
-#endif //BUILD_STATIC_LIB
 void write_markers(struct jpeg_decompress_struct *dinfo, struct jpeg_compress_struct *cinfo, int save_com, int save_iptc, int save_exif, int save_icc, int save_xmp, int strip_none);
 
 extern void dprintf(char*fmt, ...);

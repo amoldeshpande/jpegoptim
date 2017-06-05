@@ -1,4 +1,3 @@
-#if BUILD_STATIC_LIB
 #include <windows.h>
 #include <stdio.h>
 #include <fstream>
@@ -7,16 +6,6 @@
 #include "modular.h"
 using namespace std;
 
-extern "C" void dprintf(char* fmt, ...)
-{
-    char buf[4096];
-    va_list args;
-    va_start(args, fmt);
-    vsnprintf_s(buf, ARRAYSIZE(buf), _TRUNCATE, fmt, args);
-    va_end(args);
-    OutputDebugStringA(buf);
-
-}
 extern "C" char* read_all_bytes(char const* filename, size_t* length)
 {
     ifstream ifs(filename, ios::binary | ios::ate);
@@ -38,7 +27,18 @@ extern "C" void write_all_bytes(char const* filename, char* data, int datalen)
     ofs.write(data, datalen);
 
 }
+extern "C" void dprintf(char* fmt, ...)
+{
+    char buf[4096];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf_s(buf, ARRAYSIZE(buf), _TRUNCATE, fmt, args);
+    va_end(args);
+    OutputDebugStringA(buf);
 
+}
+
+#if BUILD_STATIC_LIB
 void lib_error_exit(j_common_ptr cinfo)
 {
     struct jpeg_error_mgr* myerr = (struct jpeg_error_mgr*)cinfo->err;
@@ -158,6 +158,8 @@ retry_point:
             goto retry_point;
         }
         *outputbuf = outbuffer;
+        if (buf) FREE_LINE_BUF(buf, dinfo.output_height);
+        jpeg_finish_decompress(&dinfo);
     }
     catch (std::exception& ex)
     {

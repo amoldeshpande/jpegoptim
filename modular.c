@@ -5,22 +5,7 @@
 #include <jpeglib.h>
 #include "jpegoptim.h"
 #include "modular.h"
-#if BUILD_STATIC_LIB
 
-void init_options(struct jpegoptim_options*options)
-{
-    options->quality = -1;
-    options->strip_exif = 0; 
-    options->strip_iptc = 0;
-    options->strip_icc = 0;
-    options->strip_com = 0;
-    options->strip_xmp = 0;
-    options->strip_none = 0;
-    options->threshold = -1;
-    options->all_normal = 0;
-    options->all_progressive = 0;
-    options->sizeKB = 0;
-}
 JSAMPARRAY do_decompress(struct jpeg_decompress_struct* pdinfo,
                unsigned char* inbuffer, 
                size_t insize,
@@ -223,7 +208,20 @@ binary_search_loop:
 
     return outbuffer;
 }
-#endif //  BUILD_STATIC_LIB
+void init_options(struct jpegoptim_options*options)
+{
+    options->quality = -1;
+    options->strip_exif = 0; 
+    options->strip_iptc = 0;
+    options->strip_icc = 0;
+    options->strip_com = 0;
+    options->strip_xmp = 0;
+    options->strip_none = 0;
+    options->threshold = -1;
+    options->all_normal = 0;
+    options->all_progressive = 0;
+    options->sizeKB = 0;
+}
 void write_markers(struct jpeg_decompress_struct *dinfo, struct jpeg_compress_struct *cinfo,int save_com,int save_iptc,int save_exif,int save_icc, int save_xmp,int strip_none)
 {
     jpeg_saved_marker_ptr mrk;

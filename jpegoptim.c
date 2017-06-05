@@ -19,6 +19,8 @@
 #endif
 #ifndef _WIN32
 #include <dirent.h>
+#else
+#pragma warning(disable:4996 4003) // posix name warning and other crap
 #endif
 #if HAVE_GETOPT_H && HAVE_GETOPT_LONG
 #include <getopt.h>
@@ -230,23 +232,21 @@ int main(int argc, char **argv)
     struct my_error_mgr jcerr, jderr;
     JSAMPARRAY buf = NULL;
     jvirt_barray_ptr *coef_arrays = NULL;
-    char marker_str[256];
     char tmpfilename[MAXPATHLEN], tmpdir[MAXPATHLEN];
     char newname[MAXPATHLEN], dest_path[MAXPATHLEN];
     volatile int i;
-    int c, j, tmpfd, searchcount, searchdone;
+    int c, tmpfd, searchcount, searchdone;
     int opt_index = 0;
-    long insize = 0, outsize = 0, lastsize = 0;
+    size_t insize = 0, outsize = 0, lastsize = 0;
     int oldquality;
     double ratio;
     struct stat file_stat;
-    jpeg_saved_marker_ptr cmarker;
     unsigned char *outbuffer = NULL;
     size_t outbuffersize;
     char *outfname = NULL;
     FILE *infile = NULL, *outfile = NULL;
     char* infilename = NULL;
-    int marker_in_count, marker_in_size;
+    unsigned char* infilebuffer = NULL;
     int compress_err_count = 0;
     int decompress_err_count = 0;
     long average_count = 0;
@@ -371,7 +371,7 @@ int main(int argc, char **argv)
                 break;
             case 'S':
                 {
-                    unsigned int tmpvar;
+                    int tmpvar;
                     if (sscanf(optarg, "%u", &tmpvar) == 1) {
                         if (tmpvar > 0 && tmpvar < 100 && optarg[strlen(optarg) - 1] == '%') {
                             target_size = -tmpvar;
@@ -489,84 +489,10 @@ retry_point:
 
         /* prepare to decompress */
         global_error_counter = 0;
-        jpeg_save_markers(&dinfo, JPEG_COM, 0xffff);
-        for (j = 0; j <= 15; j++)
-            jpeg_save_markers(&dinfo, JPEG_APP0 + j, 0xffff);
-        jpeg_stdio_src(&dinfo, infile);
-        jpeg_read_header(&dinfo, TRUE);
-
-        /* check for Exif/IPTC/ICC/XMP markers */
-        marker_str[0] = 0;
-        marker_in_count = 0;
-        marker_in_size = 0;
-        cmarker = dinfo.marker_list;
-
-        while (cmarker) {
-            marker_in_count++;
-            marker_in_size += cmarker->data_length;
-
-            if (cmarker->marker == EXIF_JPEG_MARKER &&
-                cmarker->data_length >= EXIF_IDENT_STRING_SIZE &&
-                !memcmp(cmarker->data, EXIF_IDENT_STRING, EXIF_IDENT_STRING_SIZE))
-                strncat(marker_str, "Exif ", sizeof(marker_str) - strlen(marker_str) - 1);
-
-            if (cmarker->marker == IPTC_JPEG_MARKER)
-                strncat(marker_str, "IPTC ", sizeof(marker_str) - strlen(marker_str) - 1);
-
-            if (cmarker->marker == ICC_JPEG_MARKER &&
-                cmarker->data_length >= ICC_IDENT_STRING_SIZE &&
-                !memcmp(cmarker->data, ICC_IDENT_STRING, ICC_IDENT_STRING_SIZE))
-                strncat(marker_str, "ICC ", sizeof(marker_str) - strlen(marker_str) - 1);
-
-            if (cmarker->marker == XMP_JPEG_MARKER &&
-                cmarker->data_length >= XMP_IDENT_STRING_SIZE &&
-                !memcmp(cmarker->data, XMP_IDENT_STRING, XMP_IDENT_STRING_SIZE))
-                strncat(marker_str, "XMP ", sizeof(marker_str) - strlen(marker_str) - 1);
-
-            cmarker = cmarker->next;
-        }
-
-
-        if (verbose_mode > 1)
-            fprintf(LOG_FH, "%d markers found in input file (total size %d bytes)\n",
-                marker_in_count, marker_in_size);
-        if (!retry && (!quiet_mode || csv)) {
-            fprintf(LOG_FH, csv ? "%dx%d,%dbit,%c," : "%dx%d %dbit %c ", (int)dinfo.image_width,
-                (int)dinfo.image_height, (int)dinfo.num_components * 8,
-                (dinfo.progressive_mode ? 'P' : 'N'));
-
-            if (!csv) {
-                fprintf(LOG_FH, "%s", marker_str);
-                if (dinfo.saw_Adobe_marker) fprintf(LOG_FH, "Adobe ");
-                if (dinfo.saw_JFIF_marker) fprintf(LOG_FH, "JFIF ");
-            }
-            fflush(LOG_FH);
-        }
-
-        if ((insize = file_size(infile)) < 0)
-            fatal("failed to stat() input file");
-
-        /* decompress the file */
-        if (quality >= 0 && !retry) {
-            jpeg_start_decompress(&dinfo);
-
-            /* allocate line buffer to store the decompressed image */
-            buf = malloc(sizeof(JSAMPROW)*dinfo.output_height);
-            if (!buf) fatal("not enough memory");
-            for (j = 0; j < dinfo.output_height; j++) {
-                buf[j] = malloc(sizeof(JSAMPLE)*dinfo.output_width*
-                    dinfo.out_color_components);
-                if (!buf[j]) fatal("not enough memory");
-            }
-
-            while (dinfo.output_scanline < dinfo.output_height) {
-                jpeg_read_scanlines(&dinfo, &buf[dinfo.output_scanline],
-                    dinfo.output_height - dinfo.output_scanline);
-            }
-        }
-        else {
-            coef_arrays = jpeg_read_coefficients(&dinfo);
-        }
+        if(infilebuffer){free(infilebuffer); }
+        infilebuffer = read_all_bytes(infilename, &insize);
+        struct marker_context marker_ctx;
+        buf = do_decompress(&dinfo, infilebuffer, insize, &marker_ctx, quality, retry, &coef_arrays);
 
         if (!retry && !quiet_mode) {
             if (global_error_counter == 0) fprintf(LOG_FH, " [OK] ");
@@ -609,121 +535,23 @@ retry_point:
         searchdone = 0;
         oldquality = 200;
 
-
-
-binary_search_loop:
-
-        /* allocate memory buffer that should be large enough to store the output JPEG... */
-        if (outbuffer) free(outbuffer);
-        outbuffersize = insize + 32768;
-        outbuffer = malloc(outbuffersize);
-        if (!outbuffer) fatal("not enough memory");
-
-        /* setup custom "destination manager" for libjpeg to write to our buffer */
-        jpeg_memory_dest(&cinfo, &outbuffer, &outbuffersize, 65536);
-
-        if (quality >= 0 && !retry) {
-            /* lossy "optimization" ... */
-
-            cinfo.in_color_space = dinfo.out_color_space;
-            cinfo.input_components = dinfo.output_components;
-            cinfo.image_width = dinfo.image_width;
-            cinfo.image_height = dinfo.image_height;
-            jpeg_set_defaults(&cinfo);
-            jpeg_set_quality(&cinfo, quality, TRUE);
-            if (all_normal) {
-                cinfo.scan_info = NULL; // Explicitly disables progressive if libjpeg had it on by default
-                cinfo.num_scans = 0;
-            }
-            else if (dinfo.progressive_mode || all_progressive) {
-                jpeg_simple_progression(&cinfo);
-            }
-            cinfo.optimize_coding = TRUE;
-
-            j = 0;
-            jpeg_start_compress(&cinfo, TRUE);
-
-            /* write markers */
-            write_markers(&dinfo, &cinfo,save_com,save_iptc,save_exif,save_icc,save_xmp,strip_none);
-
-            /* write image */
-            while (cinfo.next_scanline < cinfo.image_height) {
-                jpeg_write_scanlines(&cinfo, &buf[cinfo.next_scanline],
-                    dinfo.output_height);
-            }
-
-        }
-        else {
-            /* lossless "optimization" ... */
-
-            jpeg_copy_critical_parameters(&dinfo, &cinfo);
-            if (all_normal) {
-                cinfo.scan_info = NULL; // Explicitly disables progressive if libjpeg had it on by default
-                cinfo.num_scans = 0;
-            }
-            else if (dinfo.progressive_mode || all_progressive) {
-                jpeg_simple_progression(&cinfo);
-            }
-            cinfo.optimize_coding = TRUE;
-
-            /* write image */
-            jpeg_write_coefficients(&cinfo, coef_arrays);
-
-            /* write markers */
-            write_markers(&dinfo, &cinfo,save_com,save_iptc,save_exif,save_icc,save_xmp,strip_none);
-
-        }
-
-        jpeg_finish_compress(&cinfo);
+        struct jpegoptim_options options;
+        init_options(&options);
+        options.all_normal = all_normal;
+        options.all_progressive = all_progressive;
+        options.force = force;
+        options.quality = quality;
+        options.sizeKB = target_size;
+        options.strip_all = 1 - strip_none;
+        options.strip_com = 1- save_com ;
+        options.strip_iptc = 1- save_iptc;
+        options.strip_exif = 1- save_exif;
+        options.strip_icc = 1- save_icc ;
+        options.strip_xmp = 1- save_xmp;
+        options.strip_none = strip_none;
+        outbuffer = binary_search_size(&cinfo, &dinfo, &outbuffersize, insize, target_size, buf, coef_arrays, quality, retry, all_normal, all_progressive,&options);
         outsize = outbuffersize;
 
-        if (target_size != 0 && !retry) {
-            /* perform (binary) search to try to reach target file size... */
-
-            long osize = outsize / 1024;
-            long isize = insize / 1024;
-            long tsize = target_size;
-
-            if (tsize < 0) {
-                tsize = ((-target_size)*insize / 100) / 1024;
-                if (tsize < 1) tsize = 1;
-            }
-
-            if (osize == tsize || searchdone || searchcount >= 8 || tsize > isize) {
-                if (searchdone < 42 && lastsize > 0) {
-                    if (labs(osize - tsize) > labs(lastsize - tsize)) {
-                        if (verbose_mode) fprintf(LOG_FH, "(revert to %d)", oldquality);
-                        searchdone = 42;
-                        quality = oldquality;
-                        goto binary_search_loop;
-                    }
-                }
-                if (verbose_mode) fprintf(LOG_FH, " ");
-
-            }
-            else {
-                int newquality;
-                int dif = floor((abs(oldquality - quality) / 2.0) + 0.5);
-                if (osize > tsize) {
-                    newquality = quality - dif;
-                    if (dif < 1) { newquality--; searchdone = 1; }
-                    if (newquality < 0) { newquality = 0; searchdone = 2; }
-                }
-                else {
-                    newquality = quality + dif;
-                    if (dif < 1) { newquality++; searchdone = 3; }
-                    if (newquality > 100) { newquality = 100; searchdone = 4; }
-                }
-                oldquality = quality;
-                quality = newquality;
-
-                if (verbose_mode) fprintf(LOG_FH, "(try %d)", quality);
-
-                lastsize = osize;
-                searchcount++;
-                goto binary_search_loop;
-            }
-        }
 
         if (buf) FREE_LINE_BUF(buf, dinfo.output_height);
         jpeg_finish_decompress(&dinfo);
