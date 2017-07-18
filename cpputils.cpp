@@ -116,11 +116,11 @@ int call_jpegoptim(struct jpegoptim_options* options, unsigned char* inputbuf, s
 
     quality = options->quality;
 
-    save_exif = options->strip_exif ? 0 : 1;
-    save_iptc = options->strip_iptc ? 0 : 1;
-    save_com = options->strip_com ? 0 : 1;
-    save_icc = options->strip_icc ? 0 : 1;
-    save_xmp = options->strip_xmp ? 0 : 1;
+    save_exif = 1- options->strip_exif;
+    save_iptc = 1- options->strip_iptc;
+    save_com = 1- options->strip_com ;
+    save_icc = 1- options->strip_icc ;
+    save_xmp = 1 - options->strip_xmp;
     if (options->strip_all)
     {
         save_exif = 0;
@@ -128,6 +128,14 @@ int call_jpegoptim(struct jpegoptim_options* options, unsigned char* inputbuf, s
         save_com = 0;
         save_icc = 0;
         save_xmp = 0;
+    }
+    if (options->strip_none)
+    {
+        save_exif = 1;
+        save_iptc = 1;
+        save_com = 1;
+        save_icc = 1;
+        save_xmp = 1;
     }
     threshold = options->threshold;
     if (threshold < 0) threshold = 0;
